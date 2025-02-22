@@ -1,4 +1,4 @@
-Office Spaces Management App
+# Office Spaces Management App
 
 A sleek and efficient web app for managing office spaces and workers. Features include authentication, office creation, worker management, and filtering, all within a modern tech stack.
 
@@ -10,7 +10,7 @@ Secure sign-up and log-in.
 
 Auto-login and redirection after sign-up.
 
-🏢 Office Management
+# 🏢 Office Management
 
 Create offices (Name, Address, Capacity, Color).
 
@@ -18,7 +18,7 @@ Edit, update, and delete offices.
 
 View a list of all offices.
 
-👥 Worker Management
+# 👥 Worker Management
 
 Add workers to offices.
 
@@ -30,7 +30,7 @@ Seamlessly switch between office views and dashboard.
 
 Sign out and return to login.
 
-🛠 Technologies Used
+# 🛠 Technologies Used
 
 Frontend:
 
@@ -52,7 +52,7 @@ React Router
 
 📖 How to Use
 
-1️⃣ Authentication
+# 1️⃣ Authentication
 
 Sign Up: Create an account and get redirected to the dashboard.
 
@@ -60,7 +60,7 @@ Log In: Enter credentials and access the dashboard.
 
 Sign Out: Log out and return to the login page.
 
-2️⃣ Office Management
+# 2️⃣ Office Management
 
 Create: Click +, fill in details, and add an office.
 
@@ -68,17 +68,17 @@ Edit: Select an office, update details, and save.
 
 Delete: Remove an office when needed.
 
-3️⃣ Worker Management
+# 3️⃣ Worker Management
 
 Add Workers: Open an office, click Add Worker, enter a name, and save.
 
 Filter: Use the search bar to find workers quickly.
 
-4️⃣ Navigation
+# 4️⃣ Navigation
 
 Dashboard: Click Back to return to the main view.
 
-🔧 Setup Instructions
+# 🔧 Setup Instructions
 
 Prerequisites
 
@@ -91,8 +91,8 @@ Supabase account
 Installation Steps
 
 # Clone the repository
-git clone https://github.com/your-username/office-spaces-app.git
-cd office-spaces-app
+git clone https://github.com/sakhike1/Intermediate-Tech-Assessment.git
+cd Intermediate-Tech-Assessment
 
 # Install dependencies
 npm install  # or yarn install
@@ -106,9 +106,7 @@ npm run dev  # or yarn dev
 
 Open the app at: http://localhost:5173
 
-🖼 Screenshots
-
-Login Page
+# Login Page
 
 Office Spaces Dashboard
 
