@@ -5,6 +5,7 @@ import { Office, Worker } from '../types';
 import { WorkerCard } from '../components/WorkerCard';
 import { Search, UserPlus, ArrowLeft, Trash2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import officeImage from '../assets/office.jpg'
 
 // Animation variants
 const pageTransition = {
@@ -246,7 +247,7 @@ export function OfficeView() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/')}
-            className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm transition-all hover:shadow-md"
+            className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 bg-white/80 backdrop-blur-sm rounded-full shadow-sm transition-all hover:shadow-md"
           >
             <ArrowLeft size={20} className="mr-2" />
             Back to Offices
@@ -255,7 +256,7 @@ export function OfficeView() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center px-4 py-2 text-red-600 hover:text-red-700 bg-red-50 backdrop-blur-sm rounded-lg shadow-sm transition-all hover:shadow-md"
+            className="flex items-center px-4 py-2 text-red-600 hover:text-red-700 bg-red-50 backdrop-blur-sm rounded-full shadow-sm transition-all hover:shadow-md"
           >
             <Trash2 size={20} className="mr-2" />
             Delete Office
@@ -263,38 +264,54 @@ export function OfficeView() {
         </motion.div>
 
         <motion.div 
-          className="bg-white/80 backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8"
+          className="bg-gradient-to-r from-white via-cyan-100 to-neutral-100 backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.01 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">{office.name}</h1>
+          <div className="w-full h-64 mb-6 overflow-hidden rounded-lg" >
+          <img
+          src={officeImage}
+          alt="Office"
+          className="w-full h-full object-fill rounded-lg shadow-lg"
+          style={{ imageRendering: 'crisp-edges' }}
+        />
+         
+      </div>
+          <h1 className="text-4xl font-bold text-gray-700 mb-3">{office.name}</h1>
           <p className="text-lg text-gray-600">{office.location}</p>
         </motion.div>
+
+        
 
         <motion.div 
           className="flex justify-between items-center mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <div className="relative flex-1 max-w-lg">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <motion.input
-              type="text"
-              placeholder="Search workers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/80 backdrop-blur-sm"
-              whileFocus={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            />
-          </div>
+         <div className="relative flex-1 max-w-lg">
+      <Search 
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+        size={20} 
+      />
+      <motion.input
+        type="text"
+        placeholder="Search workers..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-700 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-bg-[conic-gradient(at_right,_var(--tw-gradient-stops))] from-teal-800 via-zinc-50 to-stone-950 focus:border-transparent"
+        whileFocus={{ 
+          scale: 1.02
+        }}
+        transition={{ type: "spring", stiffness: 300 }}
+      />
+    </div>
           <motion.button
             whileHover={{ scale: 1.05, backgroundColor: '#2563eb' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowAddWorker(true)}
-            className="ml-4 bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center shadow-lg hover:shadow-xl transition-all"
+            className="ml-4 bg-gradient-to-r from-gray-200 via-indigo-200 to-purple-400 text-gray-600 px-6 py-3 rounded-full flex items-center shadow-lg hover:shadow-xl transition-all"
           >
             <UserPlus size={20} className="mr-2" />
             Add Worker

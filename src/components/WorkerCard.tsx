@@ -14,7 +14,7 @@ export function WorkerCard({ worker, onEdit, onDelete }: WorkerCardProps) {
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-lg shadow-md p-4 flex items-center space-x-4"
+      className="bg-gradient-to-r from-white via-cyan-100 to-neutral-100 rounded-lg shadow-md p-4 flex items-center space-x-4"
     >
       <img
         src={worker.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${worker.email}`}
@@ -35,7 +35,7 @@ export function WorkerCard({ worker, onEdit, onDelete }: WorkerCardProps) {
       <div className="flex space-x-2">
         <button
           onClick={() => onEdit(worker)}
-          className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+          className="p-2 text-black hover:bg-blue-50 rounded-full transition-colors"
         >
           Edit
         </button>
