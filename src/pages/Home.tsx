@@ -1,152 +1,251 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Building2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Office } from '../types';
-import { OfficeCard } from '../components/OfficeCard';
-import { useNavigate } from 'react-router-dom';
-import { motion, useAnimation } from 'framer-motion';
+import React, {useEffect, useState} from "react";
+import {Plus, Building2, Users, Gauge, User} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import {supabase} from "../lib/supabase";
+import {Office} from "../types";
+import {OfficeCard} from "../components/OfficeCard";
+import youngAvatar from "../assets/young.png";
 
 export function Home() {
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [workerCounts, setWorkerCounts] = useState<Record<string, number>>({});
-  const navigate = useNavigate();
-  const controls = useAnimation();
+    const [offices, setOffices] = useState<Office[]>([]);
+    const [workerCounts, setWorkerCounts] = useState<Record<string, number>>({});
+    const [totalCapacity, setTotalCapacity] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchOffices();
-    animateBackground();
-  }, []);
+    useEffect(() => {
+        fetchOffices();
+    }, []);
 
-  async function fetchOffices() {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      return;
+    async function fetchOffices() {
+        setLoading(true);
+        const {
+            data: {user},
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
+        const {data: offices, error} = await supabase
+        .from("offices")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {ascending: false});
+
+        if (error) {
+            console.error("Error fetching offices:", error);
+            setLoading(false);
+            return;
+        }
+
+        setOffices(offices || []);
+
+        let totalCap = 0;
+        offices?.forEach(async (office) => {
+            totalCap += office.capacity || 0;
+            const {count} = await supabase.from("workers").select("*", {count: "exact"}).eq("office_id", office.id);
+
+            setWorkerCounts((prev) => ({
+                ...prev,
+                [office.id]: count || 0,
+            }));
+        });
+        setTotalCapacity(totalCap);
+        setLoading(false);
     }
 
-    const { data: offices, error } = await supabase
-      .from('offices')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    const getTotalWorkers = () => {
+        return Object.values(workerCounts).reduce((sum, count) => sum + count, 0);
+    };
 
-    if (error) {
-      console.error('Error fetching offices:', error);
-      return;
-    }
+    const getOccupancyRate = () => {
+        const total = getTotalWorkers();
+        return totalCapacity ? Math.round((total / totalCapacity) * 100) : 0;
+    };
 
-    setOffices(offices || []);
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+                {/* Decorative elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full opacity-10 animate-pulse" />
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-100 rounded-full opacity-10 animate-pulse delay-1000" />
+                </div>
 
-    offices?.forEach(async (office) => {
-      const { count } = await supabase
-        .from('workers')
-        .select('*', { count: 'exact' })
-        .eq('office_id', office.id);
+                {/* Header Section */}
+                <div className="relative mb-8 space-y-6">
+                    <div className="flex justify-between items-center">
+                        <div className="space-y-1">
+                            <h1 className="text-4xl font-bold text-gray-800">Office Spaces</h1>
+                            <p className="text-gray-500">Manage your workspace efficiently</p>
+                        </div>
+                        <button
+                            onClick={() => navigate("/office/new")}
+                            className="group bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 relative overflow-hidden"
+                        >
+                            <Plus
+                                size={24}
+                                className="relative z-10 transition-transform group-hover:rotate-90 duration-300"
+                            />
+                            <div className="absolute inset-0 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                        </button>
+                    </div>
 
-      setWorkerCounts(prev => ({
-        ...prev,
-        [office.id]: count || 0
-      }));
-    });
-  }
+                    {offices.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-xl">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-blue-100 rounded-full">
+                                        <Building2 className="text-blue-600 h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-500">Total Offices</p>
+                                        <p className="text-2xl font-bold text-gray-900">{offices.length}</p>
+                                    </div>
+                                </div>
+                            </div>
 
-  const animateBackground = async () => {
-    while (true) {
-      await controls.start({
-        backgroundPosition: ['0% 50%', '100% 50%'],
-        transition: { duration: 10, repeat: Infinity, repeatType: 'mirror' }
-      });
-    }
-  };
+                            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-xl">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-green-100 rounded-full">
+                                        <Users className="text-green-600 h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-500">Total Workers</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-2xl font-bold text-gray-900">{getTotalWorkers()}</p>
+                                            <div className="flex -space-x-2">
+                                                {[...Array(Math.min(3, getTotalWorkers()))].map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="h-6 w-6 rounded-full border-2 border-white overflow-hidden relative"
+                                                    >
+                                                        <img
+                                                            src={youngAvatar}
+                                                            alt="Worker avatar"
+                                                            className="h-[150px] w-[150px] object-contain"
+                                                        />
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 opacity-0">
+                                                            <User className="h-4 w-4" />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {getTotalWorkers() > 3 && (
+                                                    <div className="h-6 w-6 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-800">
+                                                        +{getTotalWorkers() - 3}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-  const floatingAnimation = {
-    y: [0, -20, 0],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  };
+                            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-xl">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-purple-100 rounded-full">
+                                        <Gauge className="text-purple-600 h-6 w-6" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-500">Occupancy Rate</p>
+                                        <div className="space-y-2">
+                                            <p className="text-2xl font-bold text-gray-900">{getOccupancyRate()}%</p>
+                                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                <div
+                                                    className="bg-purple-600 h-full transition-all duration-500 ease-out"
+                                                    style={{width: `${getOccupancyRate()}%`}}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
-  const bounceAnimation = {
-    scale: [1, 1.1, 1],
-    transition: {
-      duration: 0.6,
-      repeat: Infinity,
-      repeatType: "reverse" as const,
-      ease: "easeInOut"
-    }
-  };
+                {/* Empty State */}
+                {loading ? (
+                    <div className="flex items-center justify-center min-h-[60vh]">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" />
+                    </div>
+                ) : offices.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+                        <div className="relative mb-8">
+                            <Building2 size={120} className="text-blue-400 animate-float" />
+                            <div className="absolute inset-0 bg-blue-100 rounded-full blur-3xl opacity-20 animate-pulse" />
+                        </div>
+                        <div className="max-w-lg bg-white/70 backdrop-blur-sm rounded-xl p-8 shadow-xl">
+                            <div className="space-y-6">
+                                <h2 className="text-2xl font-semibold text-gray-800">
+                                    Welcome to Your Office Dashboard
+                                </h2>
+                                <p className="text-gray-600">
+                                    Start managing your office spaces efficiently. Add your first office to begin
+                                    tracking capacity and worker distribution.
+                                </p>
+                                <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                                    <p className="text-blue-700 font-medium flex items-center gap-2">
+                                        <span className="text-2xl">💡</span>
+                                        Pro Tip: Customize each office with unique colors and monitor real-time
+                                        occupancy rates
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {offices.map((office, index) => (
+                            <div
+                                key={office.id}
+                                className="transform transition-all duration-300 hover:-translate-y-1"
+                                style={{
+                                    opacity: 0,
+                                    animation: `fadeSlideUp 0.5s ease-out ${index * 0.1}s forwards`,
+                                }}
+                            >
+                                <OfficeCard
+                                    office={office}
+                                    workerCount={workerCounts[office.id] || 0}
+                                    className="h-full bg-white/70 backdrop-blur-sm border-none shadow-xl hover:shadow-2xl transition-all duration-300"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
-  return (
-    <motion.div
-      className="min-h-screen"
-      animate={controls}
-      style={{
-        background: 'linear-gradient(270deg, #f3e7e9, #e3eeff, #e3fdf5)',
-        backgroundSize: '300% 300%'
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Office Spaces</h1>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={offices.length === 0 ? bounceAnimation : {}}
-            onClick={() => navigate('/office/new')}
-            className="bg-blue-600 text-white p-3 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={24} />
-          </motion.button>
+            <style jsx>{`
+                @keyframes fadeSlideUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                @keyframes float {
+                    0%,
+                    100% {
+                        transform: translateY(0);
+                    }
+                    50% {
+                        transform: translateY(-20px);
+                    }
+                }
+
+                .animate-float {
+                    animation: float 4s ease-in-out infinite;
+                }
+            `}</style>
         </div>
-
-        {offices.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center min-h-[60vh] text-center"
-          >
-            <motion.div
-              animate={floatingAnimation}
-              className="mb-8"
-            >
-              <Building2 size={120} className="text-blue-300" />
-            </motion.div>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">No Offices Yet</h2>
-            <p className="text-gray-500 max-w-md mb-8">
-              Start by adding your first office space. Click the plus button to create a new office.
-            </p>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              className="bg-blue-50 p-6 rounded-xl border-2 border-blue-100 backdrop-blur-sm bg-opacity-60"
-            >
-              <p className="text-blue-600 font-medium">
-                💡 Tip: You can customize each office with its own color and capacity
-              </p>
-            </motion.div>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {offices.map((office, index) => (
-              <motion.div
-                key={office.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <OfficeCard
-                  office={office}
-                  workerCount={workerCounts[office.id] || 0}
-                  className="backdrop-blur-sm bg-opacity-60"
-                />
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
+    );
 }
+
+export default Home;
