@@ -1,4 +1,4 @@
-import React from "react";
+import  {useState} from "react";
 import { motion } from "framer-motion";
 import { Worker } from "../types";
 
@@ -10,8 +10,8 @@ interface AddEditWorkerFormProps {
 
 export function AddEditWorkerForm({ worker, onSubmit, onCancel }: AddEditWorkerFormProps) {
   const [name, setName] = useState(worker?.name || "");
-  const [position, setPosition] = useState(worker?.position || "");
-  const [email, setEmail] = useState(worker?.email || "");
+  const [position] = useState(worker?.position || "");
+  const [email, ] = useState(worker?.email || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

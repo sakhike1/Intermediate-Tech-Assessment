@@ -3,9 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { Office, Worker } from "../types";
 import { WorkerCard } from "../components/WorkerCard";
-import { Search, UserPlus, ArrowLeft, Trash2, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { 
+  Search, UserPlus, ArrowLeft, Trash2, Loader2, 
+  ChevronDown, ChevronUp, Mail, Phone, MapPin, Users
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import officeImage from "../assets/office.jpg";
+import officeImage from "../assets/gif.gif";
 
 // Animation variants
 const pageTransition = {
@@ -187,9 +190,14 @@ export function OfficeView() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center">
-          <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-          <p className="mt-2 text-gray-600">Loading office data...</p>
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1, scale: [0.9, 1.1, 1] }} 
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center"
+        >
+          <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+          <p className="mt-4 text-gray-600 font-medium">Loading office data...</p>
         </motion.div>
       </div>
     );
@@ -249,7 +257,7 @@ export function OfficeView() {
             Back to Offices
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, backgroundColor: "#fef2f2" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowDeleteConfirm(true)}
             className="flex items-center px-4 py-2 text-red-600 hover:text-red-700 border backdrop-blur-sm rounded-full shadow-sm transition-all hover:shadow-md"
@@ -260,61 +268,91 @@ export function OfficeView() {
         </motion.div>
 
         <motion.div
-          className="bg-gradient-to-r from-white via-cyan-100 to-neutral-100 backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8"
+          className="bg-white rounded-xl shadow-xl p-8 mb-8 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.01 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
-          <div className="w-full h-64 mb-6 overflow-hidden rounded-lg">
+          <div className="w-full h-64 mb-6 overflow-hidden rounded-lg relative group">
             <img
               src={officeImage}
               alt="Office"
-              className="w-full h-full object-fill rounded-lg shadow-lg"
-              style={{ imageRendering: "crisp-edges" }}
+              className="w-full h-[600px] object-fill rounded-lg shadow-lg transition-transform duration-700 group-hover:scale-105"
+            />
+            {/* Colored overlay based on office color */}
+            <div 
+              className="absolute inset-0 opacity-20 rounded-lg"
+              style={{ backgroundColor: office.color }}
             />
           </div>
-          <h1 className="text-4xl font-bold text-gray-700 mb-3">{office.name}</h1>
-          <p className="text-lg text-gray-600">{office.location}</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-3">{office.name}</h1>
+          <p className="text-lg text-gray-600 mb-6">{office.location}</p>
 
-          {/* Dropdown Button */}
-          <div className="flex justify-center  mt-4">
+          {/* Icon-only Dropdown Button */}
+          <div className="flex justify-center mt-4">
             <button
               onClick={(e) => {
-                e.stopPropagation(); // Prevent card navigation when clicking the dropdown button
+                e.stopPropagation();
                 setIsDropdownOpen(!isDropdownOpen);
               }}
-              className="flex items-center text-gray-600  hover:text-gray-900 transition-colors"
+              className="flex items-center justify-center w-12 h-12 bg-blue-50 hover:bg-blue-100 rounded-full transition-colors duration-300"
+              aria-label="Toggle details"
             >
-              {isDropdownOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              <span className="ml-2">More Details</span>
+              {isDropdownOpen ? 
+                <ChevronUp size={24} className="text-blue-600" /> : 
+                <ChevronDown size={24} className="text-blue-600" />
+              }
             </button>
           </div>
 
-          {/* Dropdown Content */}
-          {isDropdownOpen && (
-            <div
-              onClick={(e) => e.stopPropagation()} // Prevent card navigation when interacting with dropdown content
-              className="mt-4 space-y-2 text-sm text-gray-700 bg-gradient-to-l from-violet-400 via-emerald-100 to-green-200  p-4 border rounded-lg shadow-lg"
-            >
-              {office.email && (
-                <p>
-                  <strong>Email:</strong> {office.email}
-                </p>
-              )}
-              {office.phone && (
-                <p>
-                  <strong>Phone:</strong> {office.phone}
-                </p>
-              )}
-              <p>
-                <strong>Location:</strong> {office.location}
-              </p>
-              <p>
-                <strong>Capacity:</strong> {office.capacity}
-              </p>
-            </div>
-          )}
+          {/* Dropdown Content with animation */}
+          <AnimatePresence>
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {office.email && (
+                    <div className="flex items-center">
+                      <Mail size={20} className="text-blue-500 mr-3 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Email</p>
+                        <p className="text-gray-800">{office.email}</p>
+                      </div>
+                    </div>
+                  )}
+                  {office.phone && (
+                    <div className="flex items-center">
+                      <Phone size={20} className="text-blue-500 mr-3 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Phone</p>
+                        <p className="text-gray-800">{office.phone}</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center">
+                    <MapPin size={20} className="text-blue-500 mr-3 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Location</p>
+                      <p className="text-gray-800">{office.location}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Users size={20} className="text-blue-500 mr-3 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Capacity</p>
+                      <p className="text-gray-800">{office.capacity} workers</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <motion.div
@@ -332,9 +370,10 @@ export function OfficeView() {
               placeholder="Search workers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
               whileFocus={{
                 scale: 1.02,
+                boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
               }}
               transition={{ type: "spring", stiffness: 300 }}
             />
@@ -342,13 +381,13 @@ export function OfficeView() {
           <motion.button
             whileHover={{
               scale: 1.05,
-              backgroundColor: "#2563eb", // Blue background on hover
-              color: "#ffffff", // White text on hover
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Enhanced shadow on hover
+              backgroundColor: "#3b82f6",
+              color: "#ffffff",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
             }}
             whileTap={{
               scale: 0.95,
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow on tap
+              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             }}
             onClick={() => setShowAddWorker(true)}
             className="ml-4 text-gray-600 px-6 py-3 rounded-full flex items-center shadow-lg hover:shadow-xl transition-all bg-white border border-gray-200 hover:border-transparent"
@@ -403,7 +442,7 @@ export function OfficeView() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-[conic-gradient(at_bottom_left,_var(--tw-gradient-stops))] from-teal-50 via-teal-50 to-cyan-900 backdrop-blur-lg rounded-xl shadow-xl p-8 mb-8"
+              className="bg-white rounded-xl shadow-xl p-8 mb-8"
             >
               <h2 className="text-2xl font-semibold mb-6">
                 {showEditWorker ? "Edit Worker" : "Add New Worker"}
@@ -422,7 +461,7 @@ export function OfficeView() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                   <motion.input
-                    whileFocus={{ scale: 1.01 }}
+                    whileFocus={{ scale: 1.01, boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.3)" }}
                     type="text"
                     value={showEditWorker ? showEditWorker.name : newWorker.name}
                     onChange={(e) =>
@@ -430,14 +469,14 @@ export function OfficeView() {
                         ? setShowEditWorker({ ...showEditWorker, name: e.target.value })
                         : setNewWorker({ ...newWorker, name: e.target.value })
                     }
-                    className="w-full rounded-full border border-gray-300 p-3 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
                   <motion.input
-                    whileFocus={{ scale: 1.01 }}
+                    whileFocus={{ scale: 1.01, boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.3)" }}
                     type="text"
                     value={showEditWorker ? showEditWorker.position : newWorker.position}
                     onChange={(e) =>
@@ -445,14 +484,14 @@ export function OfficeView() {
                         ? setShowEditWorker({ ...showEditWorker, position: e.target.value })
                         : setNewWorker({ ...newWorker, position: e.target.value })
                     }
-                    className="w-full rounded-full border border-gray-300 p-3 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <motion.input
-                    whileFocus={{ scale: 1.01 }}
+                    whileFocus={{ scale: 1.01, boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.3)" }}
                     type="email"
                     value={showEditWorker ? showEditWorker.email : newWorker.email}
                     onChange={(e) =>
@@ -460,28 +499,28 @@ export function OfficeView() {
                         ? setShowEditWorker({ ...showEditWorker, email: e.target.value })
                         : setNewWorker({ ...newWorker, email: e.target.value })
                     }
-                    className="w-full rounded-full border border-gray-300 p-3 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent "
+                    className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
                     required
                   />
                 </div>
                 <div className="flex justify-end space-x-4">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, backgroundColor: "#f3f4f6" }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setShowAddWorker(false);
                       setShowEditWorker(null);
                     }}
-                    className="px-6 py-3 text-gray-800 hover:text-gray-800 bg-gray-300 rounded-full"
+                    className="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg"
                   >
                     Cancel
                   </motion.button>
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.05, backgroundColor: "#3b82f6" }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3  text-black   rounded-full shadow-lg"
+                    className="px-6 py-3 text-white bg-blue-500 rounded-lg shadow-lg"
                   >
                     {showEditWorker ? "Save Changes" : "Add Worker"}
                   </motion.button>
@@ -516,7 +555,7 @@ export function OfficeView() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-[conic-gradient(at_bottom_left,_var(--tw-gradient-stops))] from-teal-50 via-teal-50 to-cyan-900 backdrop-blur-sm rounded-xl p-12 text-center"
+                className="bg-white rounded-xl p-12 text-center shadow-lg"
               >
                 <motion.div
                   animate={{
@@ -529,7 +568,7 @@ export function OfficeView() {
                     repeatType: "reverse",
                   }}
                 >
-                  <UserPlus size={48} className="mx-auto text-gray-400 mb-4" />
+                  <UserPlus size={48} className="mx-auto text-blue-400 mb-4" />
                 </motion.div>
                 <p className="text-gray-500 text-lg">
                   No workers added yet. Add your first worker to get started.
@@ -542,7 +581,7 @@ export function OfficeView() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white/80 backdrop-blur-sm rounded-xl p-12 text-center"
+                className="bg-white/80 backdrop-blur-sm rounded-xl p-12 text-center shadow-lg"
               >
                 <motion.div
                   animate={{
@@ -564,14 +603,14 @@ export function OfficeView() {
         </motion.div>
       </div>
 
-      {/* Quick Action Floating Button */}
+      {/* Quick Action Floating Button with improved animation */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.1, boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.5)" }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setShowAddWorker(true)}
-        className="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all md:hidden"
+        className="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-40 md:hidden"
       >
         <UserPlus size={24} />
       </motion.button>

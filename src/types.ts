@@ -5,6 +5,8 @@ export interface Office {
   capacity: number;
   color: string;
   created_at: string;
+  phone?: string;
+  email: string;
 }
 
 export interface Worker {
@@ -15,4 +17,5 @@ export interface Worker {
   avatar_url: string;
   office_id: string;
   created_at: string;
+  phone?: string; // Optional field
 }
