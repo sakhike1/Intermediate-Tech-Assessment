@@ -1,9 +1,8 @@
-import React, { memo, useState } from "react";
+import { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Users, 
   ChevronDown, 
-  ChevronUp, 
   Mail, 
   Phone, 
   MapPin, 
@@ -12,32 +11,52 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import officeImage from "../assets/office.png";
 
+// Define the Office type
+interface Office {
+  id: string;
+  name: string;
+  location: string;
+  email?: string;
+  phone?: string;
+  capacity: number;
+  color: string;
+}
+
+// Define the props for the OfficeCard component
+interface OfficeCardProps {
+  office: Office;
+  workerCount: number;
+  className?: string;
+  isOpen?: boolean;
+  onToggle?: (id: string) => void;
+}
+
 const OfficeCard = memo(function OfficeCard({ 
   office, 
   workerCount, 
   className = "",
   isOpen = false,
   onToggle = () => {}
-}) {
+}: OfficeCardProps) {
   const navigate = useNavigate();
   const [isHovering, setIsHovering] = useState(false);
 
   // Make sure toggle only affects the current card
-  const handleDropdownToggle = (e) => {
+  const handleDropdownToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     onToggle(office.id);
   };
 
-  const handleCardClick = (e) => {
+  const handleCardClick = (e: React.MouseEvent) => {
     // Ensure we're not clicking on the dropdown area or its children
-    if (!e.target.closest('.dropdown-area')) {
+    if (!(e.target as HTMLElement).closest('.dropdown-area')) {
       navigate(`/office/${office.id}`);
     }
   };
 
   // Prevent any click in the dropdown content from propagating
-  const handleDropdownContentClick = (e) => {
+  const handleDropdownContentClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
@@ -175,6 +194,7 @@ const OfficeCard = memo(function OfficeCard({
                   <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-purple-200 rounded-full opacity-20" />
                   
                   <div className="relative z-10 space-y-3">
+                    {/* Email */}
                     {office.email && (
                       <motion.div 
                         className="flex items-center"
@@ -195,6 +215,7 @@ const OfficeCard = memo(function OfficeCard({
                       </motion.div>
                     )}
                     
+                    {/* Phone */}
                     {office.phone && (
                       <motion.div 
                         className="flex items-center"
@@ -215,6 +236,7 @@ const OfficeCard = memo(function OfficeCard({
                       </motion.div>
                     )}
                     
+                    {/* Location */}
                     <motion.div 
                       className="flex items-center"
                       initial={{ opacity: 0, x: -10 }}
@@ -233,6 +255,7 @@ const OfficeCard = memo(function OfficeCard({
                       </div>
                     </motion.div>
                     
+                    {/* Capacity */}
                     <motion.div 
                       className="flex items-center"
                       initial={{ opacity: 0, x: -10 }}

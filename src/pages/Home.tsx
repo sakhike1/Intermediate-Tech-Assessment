@@ -1,21 +1,32 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Building2, Users, Gauge, User } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { OfficeCard } from "../components/OfficeCard";
 import youngAvatar from "../assets/young.png";
 
+// Define the Office type
+interface Office {
+  id: string;
+  name: string;
+  location: string;
+  capacity: number;
+  color: string;
+  created_at: string;
+  user_id: string;
+}
+
 export function Home() {
-  const [offices, setOffices] = useState([]);
-  const [workerCounts, setWorkerCounts] = useState({});
-  const [totalCapacity, setTotalCapacity] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [openCardId, setOpenCardId] = useState(null);
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [workerCounts, setWorkerCounts] = useState<{ [key: string]: number }>({});
+  const [totalCapacity, setTotalCapacity] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Use useCallback to memoize the toggle handler
-  const handleCardToggle = useCallback((officeId) => {
-    setOpenCardId(prevId => prevId === officeId ? null : officeId);
+  const handleCardToggle = useCallback((officeId: string) => {
+    setOpenCardId((prevId) => (prevId === officeId ? null : officeId));
   }, []);
 
   useEffect(() => {
@@ -25,7 +36,9 @@ export function Home() {
   async function fetchOffices() {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (!user) {
         setLoading(false);
@@ -50,26 +63,26 @@ export function Home() {
       let totalCap = 0;
       if (offices && offices.length > 0) {
         totalCap = offices.reduce((sum, office) => sum + (office.capacity || 0), 0);
-        
+
         // Fetch worker counts in parallel
         const workerPromises = offices.map(async (office) => {
           const { count } = await supabase
             .from("workers")
             .select("*", { count: "exact" })
             .eq("office_id", office.id);
-            
+
           return { officeId: office.id, count: count || 0 };
         });
-        
+
         const workerResults = await Promise.all(workerPromises);
         const counts = workerResults.reduce((acc, { officeId, count }) => {
           acc[officeId] = count;
           return acc;
-        }, {});
-        
+        }, {} as { [key: string]: number });
+
         setWorkerCounts(counts);
       }
-      
+
       setTotalCapacity(totalCap);
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -78,11 +91,11 @@ export function Home() {
     }
   }
 
-  const getTotalWorkers = () => {
-    return Object.values(workerCounts).reduce((sum, count) => sum + count, 0);
+  const getTotalWorkers = (): number => {
+    return Object.values(workerCounts).reduce((sum: number, count: number) => sum + count, 0);
   };
 
-  const getOccupancyRate = () => {
+  const getOccupancyRate = (): number => {
     const total = getTotalWorkers();
     return totalCapacity ? Math.round((total / totalCapacity) * 100) : 0;
   };
@@ -94,8 +107,8 @@ export function Home() {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" />
         </div>
       );
-    } 
-    
+    }
+
     if (offices.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -124,14 +137,14 @@ export function Home() {
         </div>
       );
     }
-    
+
     // Render office cards with explicit checks for isOpen
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {offices.map((office, index) => {
           // Explicitly check if this card should be open
           const isThisCardOpen = openCardId === office.id;
-          
+
           return (
             <div
               key={office.id}
@@ -262,7 +275,7 @@ export function Home() {
         {renderOfficeGrid()}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeSlideUp {
           from {
             opacity: 0;

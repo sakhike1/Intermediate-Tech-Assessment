@@ -1,4 +1,4 @@
-import  {useState} from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Worker } from "../types";
 
@@ -10,12 +10,24 @@ interface AddEditWorkerFormProps {
 
 export function AddEditWorkerForm({ worker, onSubmit, onCancel }: AddEditWorkerFormProps) {
   const [name, setName] = useState(worker?.name || "");
-  const [position] = useState(worker?.position || "");
-  const [email, ] = useState(worker?.email || "");
+  const [position, setPosition] = useState(worker?.position || "");
+  const [email, setEmail] = useState(worker?.email || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ id: worker?.id || "", name, position, email });
+
+    // Create a Worker object with all required properties
+    const updatedWorker: Worker = {
+      id: worker?.id || "", // Use existing ID or an empty string for new workers
+      name,
+      position,
+      email,
+      avatar_url: worker?.avatar_url || "", // Use existing avatar_url or an empty string
+      office_id: worker?.office_id || "", // Use existing office_id or an empty string
+      created_at: worker?.created_at || new Date().toISOString(), // Use existing created_at or the current date
+    };
+
+    onSubmit(updatedWorker);
   };
 
   return (
@@ -27,7 +39,7 @@ export function AddEditWorkerForm({ worker, onSubmit, onCancel }: AddEditWorkerF
     >
       <h2 className="text-2xl font-semibold mb-6">{worker ? "Edit Worker" : "Add New Worker"}</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Form fields */}
+        {/* Name Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
           <motion.input
@@ -39,7 +51,34 @@ export function AddEditWorkerForm({ worker, onSubmit, onCancel }: AddEditWorkerF
             required
           />
         </div>
-        {/* Position and Email fields */}
+
+        {/* Position Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+          <motion.input
+            whileFocus={{ scale: 1.01 }}
+            type="text"
+            value={position}
+            onChange={(e) => setPosition(e.target.value)}
+            className="w-full rounded-full border border-gray-300 p-3 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent"
+            required
+          />
+        </div>
+
+        {/* Email Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <motion.input
+            whileFocus={{ scale: 1.01 }}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-full border border-gray-300 p-3 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-transparent"
+            required
+          />
+        </div>
+
+        {/* Buttons */}
         <div className="flex justify-end space-x-4">
           <motion.button
             type="button"

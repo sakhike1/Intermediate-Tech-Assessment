@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Edit2, Trash2, Mail, Briefcase, MoreVertical, Shield, Coffee, Code } from "lucide-react";
+import { useState } from "react";
+import { Edit2, Trash2, Mail, MoreVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Import local images
@@ -8,22 +8,37 @@ import workerImage2 from "../assets/vecteezy_3d-student-boy-avatar-bring-tablete
 import workerImage3 from "../assets/vecteezy_3d-male-character-sitting-on-a-sofa-and-working-on-a-laptop_24785778.png";
 import workerImage4 from "../assets/vecteezy_3d-male-character-sitting-on-a-sofa-and-working-on-a-laptop_24658980.png";
 
+// Define the Worker type
+interface Worker {
+  id: string;
+  name: string;
+  position: string;
+  email: string;
+}
+
+// Define the props for the WorkerCard component
+interface WorkerCardProps {
+  worker: Worker;
+  onEdit: (worker: Worker) => void;
+  onDelete: (id: string) => void;
+}
+
 // Get a consistent image based on worker's name
-const getWorkerImage = (name) => {
+const getWorkerImage = (name: string): string => {
   const images = [workerImage1, workerImage2, workerImage3, workerImage4];
-  const charCodeSum = name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const charCodeSum = name.split("").reduce((sum: number, char: string) => sum + char.charCodeAt(0), 0);
   return images[charCodeSum % images.length];
 };
 
-export function WorkerCard({ worker, onEdit, onDelete }) {
+export function WorkerCard({ worker, onEdit, onDelete }: WorkerCardProps) {
   const [showActions, setShowActions] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [avatarLoaded, setAvatarLoaded] = useState(false);
-  
+
   // Get consistent image based on worker's name
   const workerImage = getWorkerImage(worker.name);
-  
+
   // Gradient for loading state and background effect
   const gradientIndex = worker.name.length % 6;
   const gradients = [
@@ -32,10 +47,10 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
     "from-emerald-500 to-teal-600",
     "from-rose-500 to-pink-600",
     "from-amber-500 to-orange-600",
-    "from-violet-500 to-fuchsia-600"
+    "from-violet-500 to-fuchsia-600",
   ];
   const gradientClass = gradients[gradientIndex];
-  
+
   return (
     <motion.div
       layout
@@ -46,46 +61,47 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300"
-      style={{ 
-        boxShadow: isHovered 
-          ? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(59, 130, 246, 0.1)" 
-          : "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+      style={{
+        boxShadow: isHovered
+          ? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 2px rgba(59, 130, 246, 0.1)"
+          : "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
       }}
     >
       <div className="flex items-center p-6">
         {/* Avatar with local image */}
-        <motion.div 
+        <motion.div
           className={`relative w-16 h-16 rounded-xl bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white shadow-lg overflow-hidden`}
-          whileHover={{ 
+          whileHover={{
             scale: 1.1,
             rotate: [0, -5, 5, 0],
-            transition: { duration: 0.5 }
+            transition: { duration: 0.5 },
           }}
         >
           {/* Animated background that shows during loading and on hover */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0.7 }}
-            animate={{ 
-              opacity: isHovered ? 0.3 : (avatarLoaded ? 0 : 0.7),
+            animate={{
+              opacity: isHovered ? 0.3 : avatarLoaded ? 0 : 0.7,
               scale: [1, 1.05, 1],
             }}
             transition={{ duration: 3, repeat: Infinity }}
           >
             <div className="absolute inset-0 bg-gradient-to-br"></div>
-            <motion.div 
-              className="absolute inset-0" 
-              animate={{ 
-                backgroundPosition: ['0% 0%', '100% 100%']
+            <motion.div
+              className="absolute inset-0"
+              animate={{
+                backgroundPosition: ["0% 0%", "100% 100%"],
               }}
               transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
               style={{
-                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)',
-                backgroundSize: '12px 12px'
+                backgroundImage:
+                  "radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)",
+                backgroundSize: "12px 12px",
               }}
             />
           </motion.div>
-          
+
           {/* Worker avatar image from local assets */}
           <motion.img
             src={workerImage}
@@ -97,15 +113,15 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
             transition={{ duration: 0.3 }}
           />
         </motion.div>
-        
+
         <div className="ml-6 flex-1">
-          <motion.h3 
+          <motion.h3
             className="text-xl font-semibold text-gray-800 mb-1 flex items-center"
             whileHover={{ x: 3 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             {worker.name}
-            <motion.span 
+            <motion.span
               className="ml-2 inline-flex px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800"
               initial={{ opacity: 0, scale: 0, x: -10 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -114,16 +130,16 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
               {worker.position}
             </motion.span>
           </motion.h3>
-          
-          <motion.div 
+
+          <motion.div
             className="flex items-center text-gray-500"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             <Mail size={16} className="mr-2 text-blue-500" />
-            <a 
-              href={`mailto:${worker.email}`} 
+            <a
+              href={`mailto:${worker.email}`}
               className="text-gray-600 hover:text-blue-600 transition-colors"
             >
               {worker.email}
@@ -140,7 +156,7 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
           >
             <MoreVertical size={20} />
           </motion.button>
-          
+
           <AnimatePresence>
             {showActions && (
               <motion.div
@@ -177,36 +193,36 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
           </AnimatePresence>
         </div>
       </div>
-      
+
       {/* Animated border/status indicator */}
       <div className="relative h-1">
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ delay: 0.3 }}
           style={{ transformOrigin: "left" }}
         />
-        
+
         {/* Animated glow effect */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 blur-sm"
           initial={{ scaleX: 0, opacity: 0.5 }}
-          animate={{ 
-            scaleX: 1, 
+          animate={{
+            scaleX: 1,
             opacity: [0.5, 0.8, 0.5],
           }}
-          transition={{ 
+          transition={{
             delay: 0.3,
             opacity: {
               repeat: Infinity,
               duration: 2,
-            }
+            },
           }}
           style={{ transformOrigin: "left" }}
         />
       </div>
-      
+
       {/* Delete confirmation modal */}
       <AnimatePresence>
         {showDeleteConfirm && (
@@ -225,16 +241,16 @@ export function WorkerCard({ worker, onEdit, onDelete }) {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-5 flex justify-center">
-                <motion.div 
+                <motion.div
                   className="w-20 h-20 relative"
-                  animate={{ 
+                  animate={{
                     rotate: [0, 10, -10, 0],
-                    scale: [1, 1.05, 0.95, 1]
+                    scale: [1, 1.05, 0.95, 1],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <img 
-                    src={workerImage} 
+                  <img
+                    src={workerImage}
                     alt={worker.name}
                     className="w-20 h-20 rounded-full object-cover border-4 border-red-100"
                   />
